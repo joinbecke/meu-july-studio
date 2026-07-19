@@ -7,6 +7,13 @@ export default function Home() {
   const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
   async function sendMessage() {
     if (!message.trim()) return;
 
@@ -57,6 +64,7 @@ export default function Home() {
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="h-32 w-full resize-none bg-transparent text-lg outline-none"
               placeholder="Digite aqui o que deseja criar..."
             />
