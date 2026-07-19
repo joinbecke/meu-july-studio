@@ -13,37 +13,26 @@ export default function Home() {
     setLoading(true);
     setReply(""); 
 
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
-    });
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      });
 
-    const reader = res.body?.getReader();
-    const decoder = new TextDecoder();
+      const data = await res.json();
 
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-        for (const line of lines) {
-          if (line.trim()) {
-            try {
-              const json = JSON.parse(line);
-              if (json.response) {
-                setReply((prev) => prev + json.response);
-              }
-            } catch (e) {
-              console.error("Erro ao processar pedaço:", e);
-            }
-          }
-        }
+      if (data.text) {
+        setReply(data.text);
+      } else {
+        setReply("Erro ao gerar resposta da IA.");
       }
+    } catch (e) {
+      console.error("Erro na comunicação:", e);
+      setReply("Falha na conexão com o servidor.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
