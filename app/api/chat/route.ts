@@ -1,60 +1,40 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
+
+const ai = new GoogleGenAI({
+  apiKey: process.env.GOOGLE_API_KEY!,
+});
 
 export async function POST(req: Request) {
   try {
     const { message } = await req.json();
 
-    const apiKey =
-      process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-
-    if (!apiKey) {
-      console.error("Nenhuma chave de API encontrada.");
-      return new Response(
-        JSON.stringify({ error: "Chave da API não configurada no servidor" }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
     if (!message) {
-      return new Response(
-        JSON.stringify({ error: "Mensagem vazia" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
+      return Response.json(
+        { error: "Mensagem vazia." },
+        { status: 400 }
       );
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
+    const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
+      contents: message,
     });
 
-    const result = await model.generateContent(message);
-    const response = await result.response;
-    const text = response.text();
-
-    return new Response(JSON.stringify({ text }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    return Response.json({
+      text: response.text,
     });
+
   } catch (error) {
-    console.error("Erro ao chamar a API do Gemini:", error);
+    console.error(error);
 
     const err = error as Error;
 
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         error: err.message,
-      }),
+      },
       {
         status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
       }
     );
   }
