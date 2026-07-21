@@ -23,9 +23,8 @@ export async function POST(req: Request) {
     return Response.json({
       text: response.text,
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Erro Gemini:", error);
 
     const err = error as Error;
 
