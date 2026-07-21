@@ -42,21 +42,19 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Erro completo:", error);
+  console.error("Erro ao chamar a API do Gemini:", error);
 
-    const err = error as Error;
+  const err = error as Error;
 
-    return new Response(
-      JSON.stringify({
-        error: err.message,
-        stack: err.stack,
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-  }
+  return new Response(
+    JSON.stringify({
+      error: err.message,
+    }),
+    {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
